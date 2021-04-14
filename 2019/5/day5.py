@@ -27,17 +27,17 @@ def get_parameter_value(parameter, mode, operations):
         return int(operations[int(parameter)])
     elif mode == MODES[IMMEDIATE]:
         return int(parameter)
-    raise Exception('Unknown mode ${mode}')
+    raise Exception(f'Unknown mode {mode}')
 
 def sumOp(i, operations, modes):
     if len(modes) >= 1:
         first_mode = modes[-1]
     else:
-        first_mode = 0
+        first_mode = '0'
     if len(modes) >= 2:
         second_mode = modes[-2]
     else:
-        second_mode = 0
+        second_mode = '0'
     first_parameter = get_parameter_value(operations[i + 1], first_mode, operations)
     second_parameter = get_parameter_value(operations[i + 2], second_mode, operations)
     sum_index = operations[i + 3]
@@ -48,11 +48,11 @@ def multiplyOp(i, operations, modes):
     if len(modes) >= 1:
         first_mode = modes[-1]
     else:
-        first_mode = 0
+        first_mode = '0'
     if len(modes) >= 2:
         second_mode = modes[-2]
     else:
-        second_mode = 0
+        second_mode = '0'
     first_parameter = get_parameter_value(operations[i + 1], first_mode, operations)
     second_parameter = get_parameter_value(operations[i + 2], second_mode, operations) #TODO: leading zero problem
     product_index = operations[i + 3]
@@ -60,17 +60,16 @@ def multiplyOp(i, operations, modes):
     return 4
 
 def saveOp(i, operations, modes):
-    parameter = get_parameter_value(operations[i + 1], 0, operations)
-    operations[parameter] = 1 #TODO: learn how to take input
+    operations[operations[i + 1]] = 1 #TODO: learn how to take input
     return 2
 
 def printOp(i, operations, modes):
     if len(modes) >= 1:
         first_mode = modes[-1]
     else:
-        first_mode = 0
+        first_mode = '0'
     parameter = get_parameter_value(operations[i + 1], first_mode, operations)
-    print(operations[parameter])
+    print(parameter)
     return 2
 
 FUNCTIONS = {
@@ -94,6 +93,5 @@ def run_int_code(operations):
             opcode = int(str(operations[i])[-2:])
             i += execute_operation(i, operations, opcode, modes)
     return operations[0]
-
 
 print(run_int_code(int_operations))
