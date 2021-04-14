@@ -1,5 +1,5 @@
 input = open("2019/5/input.txt", "r")
-int_operations = input.read().split(",")
+int_operations = list(map(int, input.read().split(",")))
 
 SUM = 1
 MULTIPLY = 2
@@ -18,8 +18,8 @@ OPERATIONS = {
 }
 
 MODES = {
-    POSITION: 0,
-    IMMEDIATE: 1
+    POSITION: '0',
+    IMMEDIATE: '1'
 }
 
 def get_parameter_value(parameter, mode, operations):
@@ -29,35 +29,55 @@ def get_parameter_value(parameter, mode, operations):
         return int(parameter)
     raise Exception('Unknown mode ${mode}')
 
-def sum(i, operations, modes):
-    first_parameter = get_parameter_value(operations[i + 1], modes[-1], operations)
-    second_parameter = get_parameter_value(operations[i + 2], modes[-2], operations)
+def sumOp(i, operations, modes):
+    if len(modes) >= 1:
+        first_mode = modes[-1]
+    else:
+        first_mode = 0
+    if len(modes) >= 2:
+        second_mode = modes[-2]
+    else:
+        second_mode = 0
+    first_parameter = get_parameter_value(operations[i + 1], first_mode, operations)
+    second_parameter = get_parameter_value(operations[i + 2], second_mode, operations)
     sum_index = operations[i + 3]
     operations[sum_index] = first_parameter + second_parameter
     return 4
 
-def multiply(i, operations, modes):
-    first_parameter = get_parameter_value(operations[i + 1], modes[-1], operations)
-    second_parameter = get_parameter_value(operations[i + 2], modes[-2], operations) #TODO: leading zero problem
+def multiplyOp(i, operations, modes):
+    if len(modes) >= 1:
+        first_mode = modes[-1]
+    else:
+        first_mode = 0
+    if len(modes) >= 2:
+        second_mode = modes[-2]
+    else:
+        second_mode = 0
+    first_parameter = get_parameter_value(operations[i + 1], first_mode, operations)
+    second_parameter = get_parameter_value(operations[i + 2], second_mode, operations) #TODO: leading zero problem
     product_index = operations[i + 3]
-    operations[sum_index] = first_parameter * second_parameter
+    operations[product_index] = first_parameter * second_parameter
     return 4
 
-def save(i, operations, modes):
+def saveOp(i, operations, modes):
     parameter = get_parameter_value(operations[i + 1], 0, operations)
     operations[parameter] = 1 #TODO: learn how to take input
     return 2
 
-def print(i, operations, modes):
-    parameter = get_parameter_value(operations[i + 1], modes[-1], operations)
+def printOp(i, operations, modes):
+    if len(modes) >= 1:
+        first_mode = modes[-1]
+    else:
+        first_mode = 0
+    parameter = get_parameter_value(operations[i + 1], first_mode, operations)
     print(operations[parameter])
     return 2
 
 FUNCTIONS = {
-    SUM: sum,
-    MULTIPLY: multiply,
-    SAVE: save,
-    PRINT: print
+    SUM: sumOp,
+    MULTIPLY: multiplyOp,
+    SAVE: saveOp,
+    PRINT: printOp
 }
 
 def execute_operation(i, operations, opcode, modes):
@@ -70,8 +90,8 @@ def run_int_code(operations):
         if operations[i] == HALT:
             break
         else:
-            modes = operations[i][:-2]
-            opcode = int(operations[i][-2:])
+            modes = str(operations[i])[:-2]
+            opcode = int(str(operations[i])[-2:])
             i += execute_operation(i, operations, opcode, modes)
     return operations[0]
 
