@@ -1,3 +1,5 @@
+input = open("2019/6/input.txt", "r").read()
+
 def parseInput(input):
     orbits = input.split("\n")
 
@@ -24,18 +26,6 @@ class Satellite:
 
 def create_orbit_structure():
     orbit_structure = {}
-
-    input = """COM)B
-B)C
-C)D
-D)E
-E)F
-B)G
-G)H
-D)I
-E)J
-J)K
-K)L"""
     orbits = parseInput(input)
 
     for orbit in orbits:
@@ -53,19 +43,21 @@ K)L"""
     return orbit_structure
 
 def calculate_hash():
+    total = 0
     orbit_structure = create_orbit_structure()
 
-    for thing in orbit_structure:
-        print(orbit_structure[thing])
-    # start = orbit_structure['COM']
+    def count_links(orbiter):
+        links = len(orbiter.satellites)
 
-    total_direct_orbits = 0
+        for satellite in orbiter.satellites:
+            links += count_links(orbit_structure[satellite])
 
-    for object in orbit_structure:
-        direct_orbits = len(orbit_structure[object].satellites)
-        total_direct_orbits += direct_orbits
+        return links
     
-    return total_direct_orbits
-    
+    for orbit in orbit_structure:
+        total += count_links(orbit_structure[orbit])
+
+    return total
+
 # find all of the things that are orbiting the current thing
 print(calculate_hash())
