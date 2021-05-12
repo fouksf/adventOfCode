@@ -17,10 +17,14 @@ def parseInput(input):
 class Satellite:
     def __init__(self, name):
         self.name = name
+        self.com = ''
         self.satellites = []
-    
+
     def __str__(self):
         return f'{self.name}: {self.satellites}'
+    
+    def setCom(self, com):
+        self.com = com
 
 
 
@@ -39,6 +43,7 @@ def create_orbit_structure():
         
         if (satellite not in orbit_structure):
             orbit_structure[satellite] = Satellite(satellite)
+        orbit_structure[satellite].setCom(center_of_mass)
 
     return orbit_structure
 
@@ -59,5 +64,23 @@ def calculate_hash():
 
     return total
 
+def findPathToCom(orbit_structure, satellite_name):
+    current_satellite = satellite_name
+    path = []
+    while current_satellite != "COM":
+        path.append(current_satellite)
+        current_satellite = orbit_structure[current_satellite].com
+    # path.appent("COM")
+    return path
+
+def findShortestDistance(orbit_structure, starting_point, finish_point):
+    first_path = findPathToCom(orbit_structure, starting_point)
+    second_path = findPathToCom(orbit_structure, finish_point)
+    for satellite in first_path:
+        if satellite in second_path:
+            return first_path.index(satellite) + second_path.index(satellite) - 2
+
 # find all of the things that are orbiting the current thing
 print(calculate_hash())
+
+print(findShortestDistance(create_orbit_structure(), "YOU", "SAN"))
