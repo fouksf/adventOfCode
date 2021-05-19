@@ -1,3 +1,6 @@
+import copy
+import itertools
+
 input = open("2019/5/input.txt", "r")
 int_operations = list(map(int, input.read().split(",")))
 
@@ -68,7 +71,7 @@ def multiplyOp(i, operations, modes):
     return 4
 
 def saveOp(i, operations, modes):
-    operations[operations[i + 1]] = 5 #TODO: learn how to take input
+    operations[operations[i + 1]] = 4 #TODO: learn how to take input
     return 2
 
 def printOp(i, operations, modes):
@@ -77,8 +80,7 @@ def printOp(i, operations, modes):
     else:
         first_mode = '0'
     parameter = get_parameter_value(operations[i + 1], first_mode, operations)
-    print(parameter)
-    return 2
+    return parameter
 
 def jumpIfTrueOp(i, operations, modes):
     return jumpOp(i, operations, modes, True)
@@ -126,8 +128,6 @@ def compareOp(i, operations, modes, comparator):
         operations[operations[i+3]] = 0
     return 4
 
-
-
 FUNCTIONS = {
     SUM: sumOp,
     MULTIPLY: multiplyOp,
@@ -146,13 +146,32 @@ def execute_operation(i, operations, opcode, modes):
 def run_int_code(operations):
     i = 0
     while i < len(operations):
-        if operations[i] == HALT:
-            break
+        modes = str(operations[i])[:-2]
+        opcode = int(str(operations[i])[-2:])
+
+        if operations[i] == PRINT:
+            return execute_operation(i, operations, opcode, modes)
         else:
-            modes = str(operations[i])[:-2]
-            opcode = int(str(operations[i])[-2:])
             i += execute_operation(i, operations, opcode, modes)
-    print(operations)
     return operations[0]
 
-print(run_int_code(int_operations))
+# print(run_int_code(int_operations))
+
+# input: 0
+# output: 4,3,2,1,0
+
+# TODO:
+# work out how to get output from the int computer - done
+# work out how to give our int computer input in general
+# generate permutations - done
+
+# this_input = copy.deepcopy(input)
+phases = [4, 3, 2, 1, 0]
+iterations = itertools.permutations(phases)
+example_input = [3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0]
+
+print(run_int_code(example_input))
+
+# def run_amplifier(input, phase_setting):
+#     input = 
+#     run_int_code(operations, input)
