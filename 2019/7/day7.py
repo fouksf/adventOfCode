@@ -1,7 +1,8 @@
 import copy
 import itertools
+import math
 
-input = open("2019/5/input.txt", "r")
+input = open("2019/7/input.txt", "r")
 int_operations = list(map(int, input.read().split(",")))
 
 SUM = 1
@@ -40,7 +41,7 @@ def get_parameter_value(parameter, mode, operations):
         return int(parameter)
     raise Exception(f'Unknown mode {mode}')
 
-def sumOp(i, operations, modes):
+def sumOp(i, operations, modes, input):
     if len(modes) >= 1:
         first_mode = modes[-1]
     else:
@@ -53,9 +54,9 @@ def sumOp(i, operations, modes):
     second_parameter = get_parameter_value(operations[i + 2], second_mode, operations)
     sum_index = operations[i + 3]
     operations[sum_index] = first_parameter + second_parameter
-    return 4
+    return (4, False)
 
-def multiplyOp(i, operations, modes):
+def multiplyOp(i, operations, modes, input):
     if len(modes) >= 1:
         first_mode = modes[-1]
     else:
@@ -68,13 +69,13 @@ def multiplyOp(i, operations, modes):
     second_parameter = get_parameter_value(operations[i + 2], second_mode, operations) #TODO: leading zero problem
     product_index = operations[i + 3]
     operations[product_index] = first_parameter * second_parameter
-    return 4
+    return (4, False)
 
-def saveOp(i, operations, modes):
-    operations[operations[i + 1]] = 4 #TODO: learn how to take input
-    return 2
+def saveOp(i, operations, modes, input):
+    operations[operations[i + 1]] = input 
+    return (2, True)
 
-def printOp(i, operations, modes):
+def printOp(i, operations, modes, input):
     if len(modes) >= 1:
         first_mode = modes[-1]
     else:
@@ -82,13 +83,13 @@ def printOp(i, operations, modes):
     parameter = get_parameter_value(operations[i + 1], first_mode, operations)
     return parameter
 
-def jumpIfTrueOp(i, operations, modes):
-    return jumpOp(i, operations, modes, True)
+def jumpIfTrueOp(i, operations, modes, input):
+    return jumpOp(i, operations, modes, True, input)
 
-def jumpIfFalseOp(i, operations, modes):
-    return jumpOp(i, operations, modes, False)
+def jumpIfFalseOp(i, operations, modes, input):
+    return jumpOp(i, operations, modes, False, input)
 
-def jumpOp(i, operations, modes, isIfTrue):
+def jumpOp(i, operations, modes, isIfTrue, input):
     if len(modes) >= 1:
         first_mode = modes[-1]
     else:
@@ -101,17 +102,17 @@ def jumpOp(i, operations, modes, isIfTrue):
     second_parameter = get_parameter_value(operations[i + 2], second_mode, operations)
     if((parameter != 0 and isIfTrue) or
     (parameter == 0 and not isIfTrue)):
-        return second_parameter - i
+        return (second_parameter - i, False)
     else:
-        return 3
+        return (3, False)
 
-def lessThanOp(i, operations, modes):
-    return compareOp(i, operations, modes, lambda a, b: a < b)
+def lessThanOp(i, operations, modes, input):
+    return compareOp(i, operations, modes, lambda a, b: a < b, input)
 
-def equalsOp(i, operations, modes):
-    return compareOp(i, operations, modes, lambda a, b: a == b)
+def equalsOp(i, operations, modes, input):
+    return compareOp(i, operations, modes, lambda a, b: a == b, input)
 
-def compareOp(i, operations, modes, comparator):
+def compareOp(i, operations, modes, comparator, input):
     if len(modes) >= 1:
         first_mode = modes[-1]
     else:
@@ -126,7 +127,7 @@ def compareOp(i, operations, modes, comparator):
         operations[operations[i+3]] = 1
     else:
         operations[operations[i+3]] = 0
-    return 4
+    return (4, False)
 
 FUNCTIONS = {
     SUM: sumOp,
@@ -139,20 +140,26 @@ FUNCTIONS = {
     EQUALS: equalsOp
 }
 
-def execute_operation(i, operations, opcode, modes):
+def execute_operation(i, operations, opcode, modes, input):
     function = FUNCTIONS[opcode]
-    return function(i, operations, modes)
+    return function(i, operations, modes, input)
 
-def run_int_code(operations):
+def run_int_code(operations, input):
     i = 0
+    input_index = 0
     while i < len(operations):
         modes = str(operations[i])[:-2]
         opcode = int(str(operations[i])[-2:])
 
         if operations[i] == PRINT:
-            return execute_operation(i, operations, opcode, modes)
+            return execute_operation(i, operations, opcode, modes, input[input_index])
         else:
-            i += execute_operation(i, operations, opcode, modes)
+            (parameters_consumed, used_input)= execute_operation(i, operations, opcode, modes, input[input_index])
+            i += parameters_consumed
+            if (used_input):
+                if(input_index < len(input) - 1):
+                    input_index += 1
+            
     return operations[0]
 
 # print(run_int_code(int_operations))
@@ -168,10 +175,18 @@ def run_int_code(operations):
 # this_input = copy.deepcopy(input)
 phases = [4, 3, 2, 1, 0]
 iterations = itertools.permutations(phases)
-example_input = [3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0]
+example_input = [3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0]
 
-print(run_int_code(example_input))
+# print(run_int_code(example_input))
+outputs = []
+for iteration in iterations:
+    input_signal = 0
+    for amplifier in range(1, 6):
+        instructions = copy.deepcopy(int_operations)
+        input = [iteration[amplifier - 1], input_signal]
+        input_signal = run_int_code(instructions, input)
+    
+    outputs.append(input_signal)
 
-# def run_amplifier(input, phase_setting):
-#     input = 
-#     run_int_code(operations, input)
+print(outputs)
+print(max(outputs))
