@@ -152,7 +152,9 @@ def run_int_code(operations, input):
         opcode = int(str(operations[i])[-2:])
 
         if operations[i] == PRINT:
-            return execute_operation(i, operations, opcode, modes, input[input_index])
+            execute_operation(i, operations, opcode, modes, input[input_index])
+        elif operations[i] == HALT:
+            return False
         else:
             (parameters_consumed, used_input)= execute_operation(i, operations, opcode, modes, input[input_index])
             i += parameters_consumed
@@ -172,21 +174,69 @@ def run_int_code(operations, input):
 # work out how to give our int computer input in general
 # generate permutations - done
 
-# this_input = copy.deepcopy(input)
-phases = [4, 3, 2, 1, 0]
-iterations = itertools.permutations(phases)
-example_input = [3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0]
+class Amplifier:
+    def __init__(self, instructions):
+        self.instructions = instructions
+        self.position = 0
+        self.halted = False
+    
+    def run_int_code(self, input):
+        if(self.halted == True):
+            return input[0]
+        operations = self.instructions
+        input_index = 0
+        while self.position < len(operations):
+            modes = str(operations[self.position])[:-2]
+            opcode = int(str(operations[self.position])[-2:])
 
+            if operations[self.position] == PRINT:
+                value_to_print = execute_operation(self.position, operations, opcode, modes, input[input_index])
+                self.position += 2
+                return value_to_print
+            elif operations[self.position] == HALT:
+                print("in halt")
+                self.halted = True
+                return False
+            else:
+                (parameters_consumed, used_input) = execute_operation(self.position, operations, opcode, modes, input[input_index])
+                self.position += parameters_consumed
+                if (used_input):
+                    if(input_index < len(input) - 1):
+                        input_index += 1
+            
+        return operations[0]
+
+# this_input = copy.deepcopy(input)
+phases = [9, 8, 7, 6, 5]
+# iterations = itertools.permutations(phases)
+example_input = [3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5]
+iterations = [[9,8,7,6,5]]
 # print(run_int_code(example_input))
 outputs = []
 for iteration in iterations:
+    old_input_signal = 0
     input_signal = 0
-    for amplifier in range(1, 6):
-        instructions = copy.deepcopy(int_operations)
-        input = [iteration[amplifier - 1], input_signal]
-        input_signal = run_int_code(instructions, input)
+    amps = {}
+
+    while True:
+        for amplifier in range(1, 6):
+            if amplifier not in amps:
+                amps[amplifier] = Amplifier(example_input)
+                input = [iteration[amplifier - 1], input_signal]
+            else:
+                input = [input_signal]
+            amp = amps[amplifier]
+            old_input_signal = copy.deepcopy(input_signal)
+            input_signal = amp.run_int_code(input)
+            print("amplifier " +  str(amplifier) + " got input: " + str(input_signal))
+
+            if (input_signal == False):
+                input_signal = old_input_signal
+                print(input)
+                print(old_input_signal)
+                break
     
-    outputs.append(input_signal)
+    outputs.append(old_input_signal)
 
 print(outputs)
 print(max(outputs))
