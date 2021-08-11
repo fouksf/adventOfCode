@@ -119,12 +119,11 @@ class Amplifier:
             modes = str(self.instructions[self.position])[:-2]
             opcode = int(str(self.instructions[self.position])[-2:])
 
-            if self.instructions[self.position] == Operation.PRINT:
+            if self.instructions[self.position] == Operation.PRINT.value:
                 value_to_print = self.execute_operation(opcode, modes, input[input_index])
                 self.position += 2
                 return value_to_print
-            elif self.instructions[self.position] == Operation.HALT:
-                print("in halt")
+            elif self.instructions[self.position] == Operation.HALT.value:
                 self.halted = True
                 return input[0]
             else:
