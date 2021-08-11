@@ -113,19 +113,19 @@ class Amplifier:
 
     def run_int_code(self, input):
         if(self.halted == True):
-            return input[0]
+            return self.instructions[0]
         input_index = 0
         while self.position < len(self.instructions):
             modes = str(self.instructions[self.position])[:-2]
             opcode = int(str(self.instructions[self.position])[-2:])
-
-            if self.instructions[self.position] == Operation.PRINT.value:
+        
+            if opcode == Operation.PRINT.value:
                 value_to_print = self.execute_operation(opcode, modes, input[input_index])
                 self.position += 2
                 return value_to_print
-            elif self.instructions[self.position] == Operation.HALT.value:
+            elif opcode == Operation.HALT.value:
                 self.halted = True
-                return input[0]
+                return self.instructions[0]
             else:
                 (parameters_consumed, used_input) = self.execute_operation(opcode, modes, input[input_index])
                 self.position += parameters_consumed
