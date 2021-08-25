@@ -1,5 +1,8 @@
 from enum import Enum
+import copy
 
+# Opcode 3 takes a single integer as input and saves it to the position given by its only parameter. For example, the instruction 3,50 would take an input value and store it at address 50.
+# Opcode 4 outputs the value of its only parameter. For example, the instruction 4,50 would output the value at address 50.
 class Operation(Enum):
     SUM = 1
     MULTIPLY = 2
@@ -17,7 +20,7 @@ class Mode(Enum):
 
 class Amplifier:
     def __init__(self, instructions):
-        self.instructions = instructions
+        self.instructions = copy.deepcopy(instructions)
         self.position = 0
         self.halted = False
         self.functions = {
@@ -63,6 +66,7 @@ class Amplifier:
         self.instructions[product_index] = parameters[0] * parameters[1]
         return (4, False)
 
+    #we are not using modes here???
     def saveOp(self, modes, input):
         self.instructions[self.instructions[self.position + 1]] = input 
         return (2, True)
