@@ -1,19 +1,37 @@
 input = open("2019/8/input.txt", "r").read()
+# input = "0222112222120000"
 
-groups_of_six = [input[i:i+(25*6)] for i in range(0, len(input), (25*6))]
+size = 25*6
+# size = 2*2
+layers = [input[i:i+(size)] for i in range(0, len(input), (size))]
+
 count = []
 
-for group in groups_of_six:
+for group in layers:
     zeros = group.count('0')
     count.append(zeros)
 
 min_number = min(count)
 min_index = count.index(min_number)
 
-min_group = groups_of_six[min_index]
+min_group = layers[min_index]
 integers = []
 
 for char in min_group:
     integers.append(int(char))
 
-print(integers.count(1) * integers.count(2))
+pixel_array = []
+
+for pixel in range(size):
+    all_pixels = input[pixel::size]
+    stripped = all_pixels.replace('2', '')
+
+    if len(stripped) == 0:
+        colour = 2
+    else:
+        colour = int(stripped[0])
+
+    pixel_array.append(colour)
+
+for row in range(0, 6):
+    print(pixel_array[row*25:(row*25)+25])
