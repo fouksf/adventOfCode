@@ -86,7 +86,7 @@ class Amplifier:
         self.instructions[product_index] = parameters[0] * parameters[1]
         return (4, False)
 
-    #we are not using modes here???
+    # we are not using modes here???
     def saveOp(self, modes, input):
         index_to_save = self.get_parameter_index(self.instructions[self.position + 1], modes)
         self.instructions[index_to_save] = input
@@ -121,6 +121,10 @@ class Amplifier:
         return self.compareOp(modes, lambda a, b: a == b, input)
 
     def compareOp(self, modes, comparator, input):
+        # we should be saving one of the values depending on the comparison, we aren't doing that at the moment
+        # parameters: (41, 38, 24)
+        # modes: '211'
+        # input: 1
         parameters = self.get_parameters(modes)
         if(comparator(parameters[0], parameters[1])):
             #we are not using the modes here and the third parameter is always used as POSITION mode
