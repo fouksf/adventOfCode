@@ -71,7 +71,7 @@ class Amplifier:
             third_mode = '0'
         first_parameter = self.get_parameter_value(self.instructions[self.position + 1], first_mode)
         second_parameter = self.get_parameter_value(self.instructions[self.position + 2], second_mode)
-        third_parameter = self.get_parameter_value(self.instructions[self.position + 2], third_mode)
+        third_parameter = self.get_parameter_value(self.instructions[self.position + 3], third_mode)
         return (first_parameter, second_parameter, third_parameter)
 
     def sumOp(self, modes, input):
@@ -88,8 +88,9 @@ class Amplifier:
 
     #we are not using modes here???
     def saveOp(self, modes, input):
-        index_to_save = self.get_parameter_index(self.instructions[self.position + 1], modes)
-        self.instructions[index_to_save] = input 
+        # index_to_save = self.get_parameter_index(self.instructions[self.position + 1], modes)
+        # self.instructions[index_to_save] = input
+        self.instructions[self.instructions[self.position + 1]] = input
         return (2, True)
 
     def printOp(self, modes, input):
