@@ -22,7 +22,7 @@ class Mode(Enum):
 
 class Amplifier:
     def __init__(self, instructions):
-        self.instructions = copy.deepcopy(instructions) + [0] * 500
+        self.instructions = copy.deepcopy(instructions) + [0] * 1000
         self.position = 0
         self.relative_base_offset = 0
         self.halted = False
@@ -131,20 +131,35 @@ class Amplifier:
         # input: 1
         parameters = self.get_parameters(modes)
 
-        # IMMEDIATE
+        if len(modes) == 3:
+            third_parameter_mode = modes[-3]
+        else:
+            third_parameter_mode = "0"
+
+        if third_parameter_mode == Mode.IMMEDIATE.value:
+            raise Exception('Third mode was 1')
+
+        if third_parameter_mode == Mode.POSITION.value:
+            result_address = int(self.instructions[self.position + 3])
+        elif third_parameter_mode == Mode.RELATIVE.value:
+            result_address = int(self.instructions[self.relative_base_offset + self.position + 3])
+        else:
+            raise Exception(f'Unknown mode {third_parameter_mode}')
+
+        # IMMEDIATE: 1
         # In immediate mode, a parameter is interpreted as a value - if the parameter is 50, its value is simply 50.
-        # POSITION
+        # POSITION: 0
         # which causes the parameter to be interpreted as a position - if the parameter is 50, its value is the value stored at address 50 in memory.
-        # RELATIVE
+        # RELATIVE: 2
         # Parameters in mode 2, relative mode, behave very similarly to parameters in position mode: the parameter is interpreted as a position.
         # Like position mode, parameters in relative mode can be read from or written to.
         # The important difference is that relative mode parameters don't count from address 0.
         # Instead, they count from a value called the relative base. The relative base starts at 0.
         if(comparator(parameters[0], parameters[1])):
             # we are not using the modes here and the third parameter is always used as POSITION mode
-            self.instructions[self.instructions[self.position + 3]] = 1
+            self.instructions[result_address] = 1
         else:
-            self.instructions[self.instructions[self.position + 3]] = 0
+            self.instructions[result_address] = 0
         return (4, False)
 
     def changeRBOffset(self, modes, input):
