@@ -114,9 +114,13 @@ class Amplifier:
         else:
             return (3, False)
 
+    # Opcode 7 is less than: if the first parameter is less than the second parameter,
+    # it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
     def lessThanOp(self, modes, input):
         return self.compareOp(modes, lambda a, b: a < b, input)
 
+    # Opcode 8 is equals: if the first parameter is equal to the second parameter,
+    # it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
     def equalsOp(self, modes, input):
         return self.compareOp(modes, lambda a, b: a == b, input)
 
