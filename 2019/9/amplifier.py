@@ -158,6 +158,3 @@ class Amplifier:
                 modes = "0" + modes
 
             self.execute_operation(opcode, modes, parameters)
-
-        print("instructions" + self.instructions)
-        return self.instructions
