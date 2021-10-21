@@ -74,7 +74,7 @@ class Amplifier:
         return True
 
     def printOp(self, modes, input, parameters):
-        v_one = self.get_parameter_value(self.instructions[self.position + 1], modes[-1])
+        v_one = self.get_parameter_value(parameters[0], modes[-1])
         self.position += self.parameter_count[4] + 1
         return v_one
 
