@@ -96,10 +96,14 @@ class Amplifier:
             return False
 
     def lessThanOp(self, modes, input, parameters):
-        return self.compareOp(modes, lambda a, b: a < b, input, parameters)
+        usedInput = self.compareOp(modes, lambda a, b: a < b, input, parameters)
+        self.position += self.parameter_count[7] + 1
+        return usedInput
 
     def equalsOp(self, modes, input, parameters):
-        return self.compareOp(modes, lambda a, b: a == b, input, parameters)
+        usedInput = self.compareOp(modes, lambda a, b: a == b, input, parameters)
+        self.position += self.parameter_count[8] + 1
+        return usedInput
 
     def compareOp(self, modes, comparator, input, parameters):
         v_one = self.get_parameter_value(parameters[0], modes[-1])
@@ -108,8 +112,6 @@ class Amplifier:
             self.instructions[self.instructions[parameters[2]]] = 1
         else:
             self.instructions[self.instructions[parameters[2]]] = 0
-
-        self.position += self.parameter_count[7] + 1
         return False
 
     def find_function(self, opcode):
