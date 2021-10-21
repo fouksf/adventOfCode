@@ -95,10 +95,10 @@ class Amplifier:
         self.position += self.parameter_count[4] + 1
 
     def jumpIfTrueOp(self, modes, parameters):
-        return self.jumpOp(modes, True, parameters)
+        self.jumpOp(modes, True, parameters)
 
     def jumpIfFalseOp(self, modes, parameters):
-        return self.jumpOp(modes, False, parameters)
+        self.jumpOp(modes, False, parameters)
 
     def jumpOp(self, modes, isIfTrue, parameters):
         v_one = self.get_parameter_value(parameters[0], modes[0])
