@@ -49,6 +49,7 @@ class Amplifier:
             9: 1,
             99: 0
         }
+        self.input = []
 
     def get_parameter_value(self, parameter, mode):
         if mode == Mode.POSITION.value:
@@ -68,61 +69,54 @@ class Amplifier:
             return self.relative_base_offset + int(parameter)
         raise Exception(f'Unknown mode {mode}')
 
-    def sumOp(self, modes, input, parameters):
+    def sumOp(self, modes, parameters):
         v_one = self.get_parameter_value(parameters[0], modes[-1])
         v_two = self.get_parameter_value(parameters[1], modes[-2])
         v_three = self.get_parameter_index(parameters[2], modes[0])
         self.instructions[v_three] = v_one + v_two
         self.position += self.parameter_count[1] + 1
-        return False
 
-    def multiplyOp(self, modes, input, parameters):
+    def multiplyOp(self, modes, parameters):
         v_one = self.get_parameter_value(parameters[0], modes[-1])
         v_two = self.get_parameter_value(parameters[1], modes[-2])
         v_three = self.get_parameter_index(parameters[2], modes[0])
         self.instructions[v_three] = v_one * v_two
         self.position += self.parameter_count[2] + 1
-        return False
 
-    def saveOp(self, modes, input, parameters):
+    def saveOp(self, modes, parameters):
         v_one = self.get_parameter_index(parameters[0], modes[-1])
-        self.instructions[v_one] = input
+        self.instructions[v_one] = self.input.pop()
         self.position += self.parameter_count[3] + 1
-        return True
 
-    def printOp(self, modes, input, parameters):
+    def printOp(self, modes, parameters):
         v_one = self.get_parameter_value(parameters[0], modes[-1])
+        print("printing: ", v_one)
         self.position += self.parameter_count[4] + 1
-        return v_one
 
-    def jumpIfTrueOp(self, modes, input, parameters):
-        return self.jumpOp(modes, True, input, parameters)
+    def jumpIfTrueOp(self, modes, parameters):
+        return self.jumpOp(modes, True, parameters)
 
-    def jumpIfFalseOp(self, modes, input, parameters):
-        return self.jumpOp(modes, False, input, parameters)
+    def jumpIfFalseOp(self, modes, parameters):
+        return self.jumpOp(modes, False, parameters)
 
-    def jumpOp(self, modes, isIfTrue, input, parameters):
+    def jumpOp(self, modes, isIfTrue, parameters):
         v_one = self.get_parameter_value(parameters[0], modes[-1])
         v_two = self.get_parameter_value(parameters[1], modes[-2])
         if((v_one != 0 and isIfTrue) or
         (v_one == 0 and not isIfTrue)):
             self.position = v_two
-            return False
         else:
             self.position += self.parameter_count[5] + 1
-            return False
 
-    def lessThanOp(self, modes, input, parameters):
-        usedInput = self.compareOp(modes, lambda a, b: a < b, input, parameters)
+    def lessThanOp(self, modes, parameters):
+        self.compareOp(modes, lambda a, b: a < b, parameters)
         self.position += self.parameter_count[7] + 1
-        return usedInput
 
-    def equalsOp(self, modes, input, parameters):
-        usedInput = self.compareOp(modes, lambda a, b: a == b, input, parameters)
+    def equalsOp(self, modes, parameters):
+        self.compareOp(modes, lambda a, b: a == b, parameters)
         self.position += self.parameter_count[8] + 1
-        return usedInput
 
-    def compareOp(self, modes, comparator, input, parameters):
+    def compareOp(self, modes, comparator, parameters):
         v_one = self.get_parameter_value(parameters[0], modes[-1])
         v_two = self.get_parameter_value(parameters[1], modes[-2])
         v_three = self.get_parameter_index(parameters[2], modes[0])
@@ -131,26 +125,25 @@ class Amplifier:
             self.instructions[v_three] = 1
         else:
             self.instructions[v_three] = 0
-        return False
 
-    def changeRBOffset(self, modes, input, parameters):
+    def changeRBOffset(self, modes, parameters):
         v_one = self.get_parameter_value(parameters[0], modes[-1])
         self.relative_base_offset += v_one
         self.position += self.parameter_count[9] + 1
-        return False
 
     def find_function(self, opcode):
         if(opcode in self.functions):
             return self.functions[opcode]
 
-    def execute_operation(self, opcode, modes, input, parameters):
+    def execute_operation(self, opcode, modes, parameters):
         function = self.find_function(opcode)
-        return function(modes, input, parameters)
+        return function(modes, parameters)
 
     def run_int_code(self, input):
+        self.input = input
         if(self.halted == True):
             return self.instructions[0]
-        input_index = 0
+
         while self.position < len(self.instructions):
             modes = str(self.instructions[self.position])[:-2]
             opcode = int(str(self.instructions[self.position])[-2:])
@@ -159,16 +152,11 @@ class Amplifier:
             while len(modes) < self.parameter_count[opcode]:
                 modes = "0" + modes
         
-            if opcode == Operation.PRINT.value:
-                value_to_print = self.execute_operation(opcode, modes, input[input_index], parameters)
-                print("printing: ", value_to_print)
-            elif opcode == Operation.HALT.value:
+            if opcode == Operation.HALT.value:
                 self.halted = True
                 return self.instructions[0]
             else:
-                used_input = self.execute_operation(opcode, modes, input[input_index], parameters)
-                if (used_input):
-                    if(input_index < len(input) - 1):
-                        input_index += 1
+                self.execute_operation(opcode, modes, parameters)
+
         print("instructions" + self.instructions)
         return self.instructions
