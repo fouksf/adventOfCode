@@ -71,16 +71,16 @@ class Amplifier:
         raise Exception(f'Unknown mode {mode}')
 
     def sumOp(self, modes, parameters):
-        v_one = self.get_parameter_value(parameters[0], modes[-1])
-        v_two = self.get_parameter_value(parameters[1], modes[-2])
-        v_three = self.get_parameter_index(parameters[2], modes[0])
+        v_one = self.get_parameter_value(parameters[0], modes[0])
+        v_two = self.get_parameter_value(parameters[1], modes[1])
+        v_three = self.get_parameter_index(parameters[2], modes[2])
         self.instructions[v_three] = v_one + v_two
         self.position += self.parameter_count[1] + 1
 
     def multiplyOp(self, modes, parameters):
-        v_one = self.get_parameter_value(parameters[0], modes[-1])
-        v_two = self.get_parameter_value(parameters[1], modes[-2])
-        v_three = self.get_parameter_index(parameters[2], modes[0])
+        v_one = self.get_parameter_value(parameters[0], modes[0])
+        v_two = self.get_parameter_value(parameters[1], modes[1])
+        v_three = self.get_parameter_index(parameters[2], modes[2])
         self.instructions[v_three] = v_one * v_two
         self.position += self.parameter_count[2] + 1
 
@@ -101,8 +101,8 @@ class Amplifier:
         return self.jumpOp(modes, False, parameters)
 
     def jumpOp(self, modes, isIfTrue, parameters):
-        v_one = self.get_parameter_value(parameters[0], modes[-1])
-        v_two = self.get_parameter_value(parameters[1], modes[-2])
+        v_one = self.get_parameter_value(parameters[0], modes[0])
+        v_two = self.get_parameter_value(parameters[1], modes[1])
         if((v_one != 0 and isIfTrue) or
         (v_one == 0 and not isIfTrue)):
             self.position = v_two
@@ -118,9 +118,9 @@ class Amplifier:
         self.position += self.parameter_count[8] + 1
 
     def compareOp(self, modes, comparator, parameters):
-        v_one = self.get_parameter_value(parameters[0], modes[-1])
-        v_two = self.get_parameter_value(parameters[1], modes[-2])
-        v_three = self.get_parameter_index(parameters[2], modes[0])
+        v_one = self.get_parameter_value(parameters[0], modes[0])
+        v_two = self.get_parameter_value(parameters[1], modes[1])
+        v_three = self.get_parameter_index(parameters[2], modes[2])
 
         if(comparator(v_one, v_two)):
             self.instructions[v_three] = 1
@@ -150,11 +150,11 @@ class Amplifier:
             if self.halted:
                 return self.instructions[0]
 
-            modes = str(self.instructions[self.position])[:-2]
+            modes = str(self.instructions[self.position])[:-2][::-1]
             opcode = int(str(self.instructions[self.position])[-2:])
             parameters = self.instructions[self.position + 1: self.position + self.parameter_count[opcode] + 1]
 
             while len(modes) < self.parameter_count[opcode]:
-                modes = "0" + modes
+                modes += "0"
 
             self.execute_operation(opcode, modes, parameters)
