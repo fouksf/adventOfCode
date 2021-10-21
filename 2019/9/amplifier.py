@@ -35,7 +35,8 @@ class Amplifier:
             6: self.jumpIfFalseOp,
             7: self.lessThanOp,
             8: self.equalsOp,
-            9: self.changeRBOffset
+            9: self.changeRBOffset,
+            99: self.halt
         }
         self.parameter_count = {
             1: 3,
@@ -131,6 +132,9 @@ class Amplifier:
         self.relative_base_offset += v_one
         self.position += self.parameter_count[9] + 1
 
+    def halt(self, modes, parameters):
+        self.halted = True
+
     def find_function(self, opcode):
         if(opcode in self.functions):
             return self.functions[opcode]
@@ -141,22 +145,19 @@ class Amplifier:
 
     def run_int_code(self, input):
         self.input = input
-        if(self.halted == True):
-            return self.instructions[0]
 
         while self.position < len(self.instructions):
+            if self.halted:
+                return self.instructions[0]
+
             modes = str(self.instructions[self.position])[:-2]
             opcode = int(str(self.instructions[self.position])[-2:])
             parameters = self.instructions[self.position + 1: self.position + self.parameter_count[opcode] + 1]
 
             while len(modes) < self.parameter_count[opcode]:
                 modes = "0" + modes
-        
-            if opcode == Operation.HALT.value:
-                self.halted = True
-                return self.instructions[0]
-            else:
-                self.execute_operation(opcode, modes, parameters)
+
+            self.execute_operation(opcode, modes, parameters)
 
         print("instructions" + self.instructions)
         return self.instructions
