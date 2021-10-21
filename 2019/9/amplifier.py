@@ -37,6 +37,18 @@ class Amplifier:
             8: self.equalsOp,
             9: self.changeRBOffset
         }
+        self.parameter_count = {
+            1: 3,
+            2: 3,
+            3: 1,
+            4: 1,
+            5: 2,
+            6: 2,
+            7: 3,
+            8: 3,
+            9: 1,
+            99: 0
+        }
 
     def get_parameter_value(self, parameter, mode):
         if mode == Mode.POSITION.value:
@@ -49,136 +61,91 @@ class Amplifier:
 
     def get_parameter_index(self, parameter, mode):
         if mode == Mode.POSITION.value:
-            return int(self.instructions[int(parameter)])
+            return int(parameter)
         elif mode == Mode.IMMEDIATE.value:
             return int(parameter)
         elif mode == Mode.RELATIVE.value:
             return self.relative_base_offset + int(parameter)
         raise Exception(f'Unknown mode {mode}')
 
-    def get_parameters(self, modes):
-        if len(modes) >= 1:
-            first_mode = modes[-1]
+    def sumOp(self, modes, input, parameters):
+        v_one = self.get_parameter_value(parameters[0], modes[-1])
+        v_two = self.get_parameter_value(parameters[1], modes[-2])
+        v_three = self.get_parameter_index(parameters[2], modes[0])
+        self.instructions[v_three] = v_one + v_two
+        self.position += self.parameter_count[1] + 1
+        return False
+
+    def multiplyOp(self, modes, input, parameters):
+        v_one = self.get_parameter_value(parameters[0], modes[-1])
+        v_two = self.get_parameter_value(parameters[1], modes[-2])
+        v_three = self.get_parameter_index(parameters[2], modes[0])
+        self.instructions[v_three] = v_one * v_two
+        self.position += self.parameter_count[2] + 1
+        return False
+
+    def saveOp(self, modes, input, parameters):
+        v_one = self.get_parameter_index(parameters[0], modes[-1])
+        self.instructions[v_one] = input
+        self.position += self.parameter_count[3] + 1
+        return True
+
+    def printOp(self, modes, input, parameters):
+        v_one = self.get_parameter_value(parameters[0], modes[-1])
+        self.position += self.parameter_count[4] + 1
+        return v_one
+
+    def jumpIfTrueOp(self, modes, input, parameters):
+        return self.jumpOp(modes, True, input, parameters)
+
+    def jumpIfFalseOp(self, modes, input, parameters):
+        return self.jumpOp(modes, False, input, parameters)
+
+    def jumpOp(self, modes, isIfTrue, input, parameters):
+        v_one = self.get_parameter_value(parameters[0], modes[-1])
+        v_two = self.get_parameter_value(parameters[1], modes[-2])
+        if((v_one != 0 and isIfTrue) or
+        (v_one == 0 and not isIfTrue)):
+            self.position = v_two
+            return False
         else:
-            first_mode = '0'
-        if len(modes) >= 2:
-            second_mode = modes[-2]
+            self.position += self.parameter_count[5] + 1
+            return False
+
+    def lessThanOp(self, modes, input, parameters):
+        usedInput = self.compareOp(modes, lambda a, b: a < b, input, parameters)
+        self.position += self.parameter_count[7] + 1
+        return usedInput
+
+    def equalsOp(self, modes, input, parameters):
+        usedInput = self.compareOp(modes, lambda a, b: a == b, input, parameters)
+        self.position += self.parameter_count[8] + 1
+        return usedInput
+
+    def compareOp(self, modes, comparator, input, parameters):
+        v_one = self.get_parameter_value(parameters[0], modes[-1])
+        v_two = self.get_parameter_value(parameters[1], modes[-2])
+        v_three = self.get_parameter_index(parameters[2], modes[0])
+
+        if(comparator(v_one, v_two)):
+            self.instructions[v_three] = 1
         else:
-            second_mode = '0'
-        if len(modes) >= 3:
-            third_mode = modes[-3]
-        else:
-            third_mode = '0'
-        first_parameter = self.get_parameter_value(self.instructions[self.position + 1], first_mode)
-        second_parameter = self.get_parameter_value(self.instructions[self.position + 2], second_mode)
-        third_parameter = self.get_parameter_value(self.instructions[self.position + 3], third_mode)
-        return (first_parameter, second_parameter, third_parameter)
+            self.instructions[v_three] = 0
+        return False
 
-    def sumOp(self, modes, input):
-        parameters = self.get_parameters(modes)
-        sum_index = self.instructions[self.position + 3]
-        self.instructions[sum_index] = parameters[0] + parameters[1]
-        return (4, False)
-
-    def multiplyOp(self, modes, input):
-        parameters = self.get_parameters(modes)
-        product_index = self.instructions[self.position + 3]
-        self.instructions[product_index] = parameters[0] * parameters[1]
-        return (4, False)
-
-    # we are not using modes here???
-    def saveOp(self, modes, input):
-        index_to_save = self.get_parameter_index(self.instructions[self.position + 1], modes)
-        self.instructions[index_to_save] = input
-        return (2, True)
-
-    def printOp(self, modes, input):
-        if len(modes) >= 1:
-            first_mode = modes[-1]
-        else:
-            first_mode = '0'
-        parameter = self.get_parameter_value(self.instructions[self.position + 1], first_mode)
-        return parameter
-
-    def jumpIfTrueOp(self, modes, input):
-        return self.jumpOp(modes, True, input)
-
-    def jumpIfFalseOp(self, modes, input):
-        return self.jumpOp(modes, False, input)
-
-    def jumpOp(self, modes, isIfTrue, input):
-        parameters = self.get_parameters(modes)
-        if((parameters[0] != 0 and isIfTrue) or
-        (parameters[0] == 0 and not isIfTrue)):
-            return (parameters[1] - self.position, False)
-        else:
-            return (3, False)
-
-    # Opcode 7 is less than: if the first parameter is less than the second parameter,
-    # it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
-    def lessThanOp(self, modes, input):
-        return self.compareOp(modes, lambda a, b: a < b, input)
-
-    # Opcode 8 is equals: if the first parameter is equal to the second parameter,
-    # it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
-    def equalsOp(self, modes, input):
-        return self.compareOp(modes, lambda a, b: a == b, input)
-
-    def compareOp(self, modes, comparator, input):
-        # we should be saving one of the values depending on the comparison, we aren't doing that at the moment
-        # parameters: (41, 38, 24)
-        # modes: '211'
-        # input: 1
-        parameters = self.get_parameters(modes)
-
-        if len(modes) == 3:
-            third_parameter_mode = modes[-3]
-        else:
-            third_parameter_mode = "0"
-
-        if third_parameter_mode == Mode.IMMEDIATE.value:
-            raise Exception('Third mode was 1')
-
-        if third_parameter_mode == Mode.POSITION.value:
-            result_address = int(self.instructions[self.position + 3])
-        elif third_parameter_mode == Mode.RELATIVE.value:
-            result_address = int(self.instructions[self.relative_base_offset + self.position + 3])
-        else:
-            raise Exception(f'Unknown mode {third_parameter_mode}')
-
-        # IMMEDIATE: 1
-        # In immediate mode, a parameter is interpreted as a value - if the parameter is 50, its value is simply 50.
-        # POSITION: 0
-        # which causes the parameter to be interpreted as a position - if the parameter is 50, its value is the value stored at address 50 in memory.
-        # RELATIVE: 2
-        # Parameters in mode 2, relative mode, behave very similarly to parameters in position mode: the parameter is interpreted as a position.
-        # Like position mode, parameters in relative mode can be read from or written to.
-        # The important difference is that relative mode parameters don't count from address 0.
-        # Instead, they count from a value called the relative base. The relative base starts at 0.
-        if(comparator(parameters[0], parameters[1])):
-            # we are not using the modes here and the third parameter is always used as POSITION mode
-            self.instructions[result_address] = 1
-        else:
-            self.instructions[result_address] = 0
-        return (4, False)
-
-    def changeRBOffset(self, modes, input):
-        if len(modes) >= 1:
-            first_mode = modes[-1]
-        else:
-            first_mode = '0'
-        parameter = self.get_parameter_value(self.instructions[self.position + 1], first_mode)
-        self.relative_base_offset += parameter
-        return (2, False)
-        
+    def changeRBOffset(self, modes, input, parameters):
+        v_one = self.get_parameter_value(parameters[0], modes[-1])
+        self.relative_base_offset += v_one
+        self.position += self.parameter_count[9] + 1
+        return False
 
     def find_function(self, opcode):
         if(opcode in self.functions):
             return self.functions[opcode]
 
-    def execute_operation(self, opcode, modes, input):
+    def execute_operation(self, opcode, modes, input, parameters):
         function = self.find_function(opcode)
-        return function(modes, input)
+        return function(modes, input, parameters)
 
     def run_int_code(self, input):
         if(self.halted == True):
@@ -187,17 +154,19 @@ class Amplifier:
         while self.position < len(self.instructions):
             modes = str(self.instructions[self.position])[:-2]
             opcode = int(str(self.instructions[self.position])[-2:])
+            parameters = self.instructions[self.position + 1: self.position + self.parameter_count[opcode] + 1]
+
+            while len(modes) < self.parameter_count[opcode]:
+                modes = "0" + modes
         
             if opcode == Operation.PRINT.value:
-                value_to_print = self.execute_operation(opcode, modes, input[input_index])
-                self.position += 2
-                print("printing:" + str(value_to_print))
+                value_to_print = self.execute_operation(opcode, modes, input[input_index], parameters)
+                print("printing: ", value_to_print)
             elif opcode == Operation.HALT.value:
                 self.halted = True
                 return self.instructions[0]
             else:
-                (parameters_consumed, used_input) = self.execute_operation(opcode, modes, input[input_index])
-                self.position += parameters_consumed
+                used_input = self.execute_operation(opcode, modes, input[input_index], parameters)
                 if (used_input):
                     if(input_index < len(input) - 1):
                         input_index += 1
