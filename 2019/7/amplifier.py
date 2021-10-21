@@ -109,9 +109,9 @@ class Amplifier:
         v_one = self.get_parameter_value(parameters[0], modes[-1])
         v_two = self.get_parameter_value(parameters[1], modes[-2])
         if(comparator(v_one, v_two)):
-            self.instructions[self.instructions[parameters[2]]] = 1
+            self.instructions[parameters[2]] = 1
         else:
-            self.instructions[self.instructions[parameters[2]]] = 0
+            self.instructions[parameters[2]] = 0
         return False
 
     def find_function(self, opcode):
