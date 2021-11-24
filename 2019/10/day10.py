@@ -2,16 +2,22 @@ import math
 
 # input = open("2019/10/input.txt", "r").read()
 
-input = '''......#.#.
-#..#.#....
-..#######.
-.#.#.###..
-.#..#.....
-..#....#.#
-#..#....#.
-.##.#..###
-##...#..#.
-.#....####'''
+# input = '''......#.#.
+# #..#.#....
+# ..#######.
+# .#.#.###..
+# .#..#.....
+# ..#....#.#
+# #..#....#.
+# .##.#..###
+# ##...#..#.
+# .#....####'''
+
+input = '''.#..#
+.....
+#####
+....#
+...##'''
 
 map_matrix = list(map(list, input.split("\n")))
 
@@ -35,22 +41,35 @@ def calc_distance(point_one, point_two):
 
 def calc_visible_astroids():
     a = points[0]
-    sorted_points = sorted(points, key=lambda point: calc_distance(point, a))
+    # sorted_points = sorted(points, key=lambda point: calc_distance(point, a))
     # for i, point in enumerate(sorted_points[1:]):
+    for i in range(0, len(points)-1):
+        current_point = points[i]
+        max_x = max(a[0], current_point[0])
+        max_y = max(a[1], current_point[1])
+        min_x = min(a[0], current_point[0])
+        min_y = min(a[1], current_point[1])
 
-    b = sorted_points[1]
-    c = sorted_points[2]
+        in_box = list(filter(lambda p1: p1[0] > min_x and p1[1] > min_y and p1[0] < max_x and p1[1] < max_y , points))
 
-    a_b = calc_distance(a, b)
-    a_c = calc_distance(a, c)
-    b_c = calc_distance(b, c)
+        for j in range(0, len(in_box)-1):
+            if j == i:
+                continue
 
-    if (a_b + b_c == a_c):
-        if (a_b < a_c):
-            sorted_points.pop(1)
-        else:
-            sorted_points.pop(2)
+            b = points[i]
+            c = points[j]
 
-    # return len(sorted_points)
+            a_b = calc_distance(a, b)
+            a_c = calc_distance(a, c)
+            b_c = calc_distance(b, c)
+
+            if (a_b + b_c == a_c):
+                print(i)
+                if (a_b < a_c):
+                    points.pop(i)
+                else:
+                    points.pop(j)
+    # we want 7
+    return len(points)
         
-        
+print(calc_visible_astroids());
