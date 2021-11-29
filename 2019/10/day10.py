@@ -1,6 +1,6 @@
 import math
 
-# input = open("2019/10/input.txt", "r").read()
+input = open("2019/10/input.txt", "r").read()
 
 # input = '''......#.#.
 # #..#.#....
@@ -13,11 +13,27 @@ import math
 # ##...#..#.
 # .#....####'''
 
-input = '''.#..#
-.....
-#####
-....#
-...##'''
+# input = '''.#..#
+# .....
+# #####
+# ....#
+# ...##'''
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __eq__(self, other):
+        if (isinstance(other, self.__class__)):
+            return self.x == other.x and self.y == other.y
+        else:
+            return False
+    
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+    def __repr__(self):
+        return f'({self.x}, {self.y})'
 
 map_matrix = list(map(list, input.split("\n")))
 
@@ -30,46 +46,52 @@ points = []
 for i, line in enumerate(map_matrix):
     for j, point in enumerate(line):
         if (point == '#'):
-            points.append((i, j))
+            points.append(Point(j, i))
 
 
-def calc_distance(point_one, point_two):
-    (x, y) = point_one
-    (a, b) = point_two
+def are_points_collinear(a: Point, b: Point, c: Point):
+    if (a.x == b.x or b.x == c.x or a.x == c.x):
+        return a.x == b.x == c.x
+    slope_ab =(b.y - a.y)/(b.x - a.x)
+    slobe_bc = (c.y - b.y)/(c.x - b.x)
+    return slobe_bc == slope_ab
 
-    return math.sqrt((x - a)**2 + (y - b)**2)
 
-def calc_visible_astroids():
-    a = points[0]
-    # sorted_points = sorted(points, key=lambda point: calc_distance(point, a))
-    # for i, point in enumerate(sorted_points[1:]):
-    for i in range(0, len(points)-1):
-        current_point = points[i]
-        max_x = max(a[0], current_point[0])
-        max_y = max(a[1], current_point[1])
-        min_x = min(a[0], current_point[0])
-        min_y = min(a[1], current_point[1])
+def calc_visible_astroids_for_point(a: Point):
+    visible_points_count = len(points) - 1
+    for i in range(0, len(points)):
+        b = points[i]
+        if (a == b):
+            continue
 
-        in_box = list(filter(lambda p1: p1[0] > min_x and p1[1] > min_y and p1[0] < max_x and p1[1] < max_y , points))
+        max_x = max(a.x, b.x)
+        max_y = max(a.y, b.y)
+        min_x = min(a.x, b.x)
+        min_y = min(a.y, b.y)
 
-        for j in range(0, len(in_box)-1):
-            if j == i:
+        ab_rectangle = list(filter(lambda p: p.x >= min_x and p.y >= min_y and p.x <= max_x and p.y <= max_y, points))
+        for j in range(0, len(ab_rectangle)-1):
+            c = ab_rectangle[j]
+            if a == c or b == c:
                 continue
 
-            b = points[i]
-            c = points[j]
+            if (are_points_collinear(a, b, c)):
+                visible_points_count -= 1
+                break
+    return visible_points_count
 
-            a_b = calc_distance(a, b)
-            a_c = calc_distance(a, c)
-            b_c = calc_distance(b, c)
+def get_visible_asteroids():
+    counts = {}
+    for point in points:
+        counts[point] = calc_visible_astroids_for_point(point)
+    return counts
 
-            if (a_b + b_c == a_c):
-                print(i)
-                if (a_b < a_c):
-                    points.pop(i)
-                else:
-                    points.pop(j)
-    # we want 7
-    return len(points)
+def find_most_visible_asteroids():
+    max_visible = 0
+    for point in points:
+        current_visible = calc_visible_astroids_for_point(point)
+        if (current_visible > max_visible):
+            max_visible = current_visible
+    return max_visible
         
-print(calc_visible_astroids());
+print(find_most_visible_asteroids())
