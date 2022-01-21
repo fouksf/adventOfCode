@@ -48,12 +48,14 @@ for i, line in enumerate(map_matrix):
         if (point == '#'):
             points.append(Point(j, i))
 
+def get_line_slope(a: Point, b: Point):
+    return (b.y - a.y)/(b.x - a.x)
 
 def are_points_collinear(a: Point, b: Point, c: Point):
     if (a.x == b.x or b.x == c.x or a.x == c.x):
         return a.x == b.x == c.x
-    slope_ab =(b.y - a.y)/(b.x - a.x)
-    slobe_bc = (c.y - b.y)/(c.x - b.x)
+    slope_ab = get_line_slope(a, b)
+    slobe_bc = get_line_slope(b, c)
     return slobe_bc == slope_ab
 
 
@@ -86,12 +88,44 @@ def get_visible_asteroids():
         counts[point] = calc_visible_astroids_for_point(point)
     return counts
 
-def find_most_visible_asteroids():
+def find_best_visibility():
     max_visible = 0
+    most_visibility = points[0]
     for point in points:
         current_visible = calc_visible_astroids_for_point(point)
         if (current_visible > max_visible):
             max_visible = current_visible
-    return max_visible
+            most_visibility = point
+    return (most_visibility, max_visible)
         
-print(find_most_visible_asteroids())
+# most_visibility, max_visible = find_best_visibility()
+# print(max_visible)
+
+def get_angle(a: Point, b: Point):
+    if a.x == b.x:
+        if a.y > b.y:
+            return 90
+        elif a.y < b.y:
+            return 270
+    slope = (a.y - b.y) / (a.x - b.x)
+    return math.degrees(math.atan(slope))
+
+locus = Point(26, 29)
+
+def get_angles_dict():
+    angles = {}
+    for point in points:
+        if locus == point:
+            continue
+        angle = get_angle(point, locus)
+        if angle not in angles:
+            angles[angle] = []
+        angles[angle].append(point)
+    print(angles)
+
+get_angles_dict()
+
+# print(get_angle(Point(0,0), Point(4, 3)))
+# print(get_angle(Point(7, 10), Point(3,7)))
+# print(get_angle(Point(0,0), Point(4, -3)))
+# print(get_angle(Point(0,0), Point(1, 1)))
