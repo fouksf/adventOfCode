@@ -17,33 +17,82 @@ RIGHT = 1
 DOWN = 2
 LEFT = 3
 
-current_point = Point(0, 0)
-direction = UP
-points_visited = {}
+class PainterRobot:
+    def __init__(self):
+        self.is_first_position = True
+        self.direction = UP
+        self.position = Point(0, 0)
+        self.painted_points = {}
 
-def move(turn, current_point):
-    if turn == 0:
-        direction = (direction + 1) % 4
-    elif turn == 1:
-        direction = (direction - 1) % 4
-    
-# TODO return new point based upon the new direction
-    
+    def turn(self, direction):
+        if direction == LEFT_90:
+            self.direction = (self.direction - 1) % 4
+        elif direction == RIGHT_90:
+            self.direction = (self.direction + 1) % 4
+        else:
+            print("Mayday mayday")
 
-    return current_point
+    def step(self):
+        if self.direction == UP:
+            self.position = Point(self.position.x, self.position.y - 1)
+        elif self.direction == DOWN:
+            self.position = Point(self.position.x, self.position.y + 1)
+        elif self.direction == LEFT:
+            self.position = Point(self.position.x - 1, self.position.y)
+        elif self.direction == RIGHT:
+            self.position = Point(self.position.x + 1, self.position.y)
+        else:
+            print("Huston, we have a problem!")
+    
+    def move(self, direction):
+        self.turn(direction)
+        self.step()
+
+    def position_has_been_painted(self):
+        return self.position in self.painted_points
+    
+    def get_current_position_colour(self):
+        if self.is_first_position:
+            self.is_first_position = False
+            return WHITE
+        if self.position_has_been_painted():
+            return self.painted_points[self.position]
+        return BLACK
+
+    def paint_position(self, colour):
+        self.painted_points[self.position] = colour
+    
+    
+painter = PainterRobot()
 
 while True:
-    current_colour = BLACK
-
-    if current_point in points_visited:
-        current_colour = points_visited[current_point]
+    
+    current_colour = painter.get_current_position_colour()
     
     new_colour = amplifier.run_int_code([current_colour])
 
     if (new_colour == None):
         break
     
-    points_visited[current_point] = new_colour
+    painter.paint_position(new_colour)
 
-    direction = amplifier.run_int_code([current_colour])
-    current_point = move(direction, current_point)
+    direction_to_turn = amplifier.run_int_code([])
+    painter.move(direction_to_turn)
+
+
+print(len(painter.painted_points))
+
+
+for j in range(7):
+    result = ''
+    for i in range(45):
+        point = Point(i, j)
+        if point in painter.painted_points:
+            colour = painter.painted_points[point]
+            if(colour == BLACK):
+                result += "_"
+            else:
+                result += "#"
+        else:
+            result += "#"
+    print(result)
