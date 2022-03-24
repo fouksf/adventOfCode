@@ -23,3 +23,6 @@ class Point:
     
     def energy(self):
         return abs(self.x) + abs(self.y) + abs(self.z)
+
+    def copy(self):
+        return Point(self.x, self.y, self.z)

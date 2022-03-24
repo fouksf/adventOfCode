@@ -2,10 +2,10 @@ from point import Point
 from moon import Moon
 
 moons = [
-    Moon(Point(-1, 0, 2)),
-    Moon(Point(2, -10, -7)),
-    Moon(Point(4, -8, 8)),
-    Moon(Point(3, 5, -1))
+    Moon(Point(-5, 6, -11)),
+    Moon(Point(-8, -4, -2)),
+    Moon(Point(1, 16, 4)),
+    Moon(Point(11, 11, -4))
 ]
 # First example
     # Moon(Point(-1, 0, 2)),
@@ -48,5 +48,6 @@ moons = [
 
 ## Part two
 
+from moonSystem import MoonSystem
 moon_system = MoonSystem(moons)
 print(moon_system.find_cycle())

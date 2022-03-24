@@ -6,8 +6,8 @@ class Moon:
         self.velocity = Velocity(0, 0, 0)
         self.states = [self.__repr__()]
         self.orbit_time = None
-        self.initial_point = point
-        self.initial_velocity = velocity
+        self.initial_point = point.copy()
+        self.initial_velocity = Velocity(0, 0, 0)
     
     def __repr__(self):
         return f'pos={self.point}, vel={self.velocity}'
