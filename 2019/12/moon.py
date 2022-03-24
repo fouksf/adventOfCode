@@ -8,6 +8,9 @@ class Moon:
         self.orbit_time = None
         self.initial_point = point.copy()
         self.initial_velocity = Velocity(0, 0, 0)
+        self.do_x = True
+        self.do_y = True
+        self.do_z = True
     
     def __repr__(self):
         return f'pos={self.point}, vel={self.velocity}'
@@ -22,32 +25,34 @@ class Moon:
         return self.point.z == self.initial_point.z and self.velocity.z == self.initial_velocity.z
     
     def apply_gravity(self, other_moon):
-        if (self.point.x > other_moon.point.x):
-            self.velocity.x -= 1
-        elif (self.point.x < other_moon.point.x):
-            self.velocity.x += 1
+        if self.do_x:
+            if (self.point.x > other_moon.point.x):
+                self.velocity.x -= 1
+            elif (self.point.x < other_moon.point.x):
+                self.velocity.x += 1
         
-        if (self.point.y > other_moon.point.y):
-            self.velocity.y -= 1
-        elif (self.point.y < other_moon.point.y):
-            self.velocity.y += 1
+        if self.do_y:
+            if (self.point.y > other_moon.point.y):
+                self.velocity.y -= 1
+            elif (self.point.y < other_moon.point.y):
+                self.velocity.y += 1
+        if self.do_z:
+            if (self.point.z > other_moon.point.z):
+                self.velocity.z -= 1
+            elif (self.point.z < other_moon.point.z):
+                self.velocity.z += 1
         
-        if (self.point.z > other_moon.point.z):
-            self.velocity.z -= 1
-        elif (self.point.z < other_moon.point.z):
-            self.velocity.z += 1
-        
-    def record_state(self):
-        if self.__repr__() in self.states:
-            self.orbit_time = len(self.states)
-            print(self.orbit_time)
-        else:
-            self.states.append(self.__repr__())
+    # def record_state(self):
+    #     if self.__repr__() in self.states:
+    #         self.orbit_time = len(self.states)
+    #         print(self.orbit_time)
+    #     else:
+    #         self.states.append(self.__repr__())
     
     def apply_velocity(self):
         self.point.apply_velocity(self.velocity)
-        if self.orbit_time == None:
-            self.record_state()
+        # if self.orbit_time == None:
+        #     self.record_state()
     
     def get_energy(self):
         return self.point.energy() * self.velocity.energy()

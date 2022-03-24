@@ -2,10 +2,10 @@ from point import Point
 from moon import Moon
 
 moons = [
-    Moon(Point(-5, 6, -11)),
-    Moon(Point(-8, -4, -2)),
-    Moon(Point(1, 16, 4)),
-    Moon(Point(11, 11, -4))
+    Moon(Point(5, -1, 5)),
+    Moon(Point(0, -14, 2)),
+    Moon(Point(16, 4, 0)),
+    Moon(Point(18, 1, 16))
 ]
 # First example
     # Moon(Point(-1, 0, 2)),
@@ -13,17 +13,22 @@ moons = [
     # Moon(Point(4, -8, 8)),
     # Moon(Point(3, 5, -1))
 
-# <x=-8, y=-10, z=0>
-# <x=5, y=5, z=10>
-# <x=2, y=-7, z=3>
-# <x=9, y=-8, z=-3>
+# #second example
+#     Moon(Point(-8, -10, 0)),
+#     Moon(Point(5, 5, 10)),
+#     Moon(Point(2, -7, 3)),
+#     Moon(Point(9, -8, -3))
 
 # fo's input
     # Moon(Point(5, -1, 5)),
     # Moon(Point(0, -14, 2)),
     # Moon(Point(16, 4, 0)),
     # Moon(Point(18, 1, 16))
-
+# Nick's input
+    # Moon(Point(-5, 6, -11)),
+    # Moon(Point(-8, -4, -2)),
+    # Moon(Point(1, 16, 4)),
+    # Moon(Point(11, 11, -4))
 
 
 ## Part One
