@@ -1,10 +1,11 @@
-input = """9 ORE => 2 A
-8 ORE => 3 B
-7 ORE => 5 C
-3 A, 4 B => 1 AB
-5 B, 7 C => 1 BC
-4 C, 1 A => 1 CA
-2 AB, 3 BC, 4 CA => 1 FUEL"""
+import math
+
+input = """10 ORE => 10 A
+1 ORE => 1 B
+7 A, 1 B => 1 C
+7 A, 1 C => 1 D
+7 A, 1 D => 1 E
+7 A, 1 E => 1 FUEL"""
 
 instructions = input.split("\n")
 materials_needed = {
@@ -22,23 +23,26 @@ def build_mapping():
 
 reacts = build_mapping()
 
-for material in materials_needed:
-    print(materials_needed)
-    reaction = instructions[reacts[material]]
-    needed = reaction.split(", ")
-    print(needed)
-    for need in needed:
-        stuff = need.split(" ")
-        print(stuff)
-        amount = stuff[0]
-        name = stuff[1]
-        if name == "ORE":
-            ore_count += int(amount)
-            continue
+while len(materials_needed) > 0:
+    new_materials = {}
+    for material in materials_needed:
+        print(materials_needed)
+        reaction = instructions[reacts[material]]
+        needed = reaction.split(" => ")[0].split(", ")
+        amount_needed = materials_needed[material]
+        for need in needed:
+            (amount, element) = need.split(" ")
+            if element == "ORE":
+                amount_created = int(reaction.split(" => ")[1].split(" ")[0])
+                first_thing = math.ceil(amount_needed / amount_created)
+                ore_count += first_thing * int(amount)
+                continue
 
-        if name in materials_needed:
-            materials_needed[name] += int(amount)
-        else:
-            materials_needed[name] = int(amount)
-    
-    del materials_needed[needed]
+            if element in new_materials:
+                new_materials[element] += (amount_needed * int(amount))
+            else:
+                new_materials[element] = (amount_needed * int(amount))
+        
+    materials_needed = new_materials
+
+print(ore_count)
