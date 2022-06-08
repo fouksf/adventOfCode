@@ -2,15 +2,15 @@ from intcode import Computer
 from point import Point
 from copy import deepcopy
 
-input = list(map(int, open("2019/11/input.txt", "r").read().split(",")))
+input = list(map(int, open("2019/15/input.txt", "r").read().split(",")))
 
 class RepairDroid:
     def __init__(self, amplifier):
-        self.amp = amplifier
         self.found = False
         self.queue = [{
             'point': Point(0, 0),
             'steps': 0,
+            'amp': amplifier
         }]
         self.visited = set()
         self.directionMapping = {
@@ -32,19 +32,20 @@ class RepairDroid:
 
             for direction in range(1,5):
                 newPoint = self.directionMapping[direction](current['point'])
-                newIntCode = deepcopy(self.amp)
+                newIntCode = deepcopy(current['amp'])
                 out = newIntCode.run_int_code([direction])
-                print(out)
+                # print(out)
                 if out == 2:
                     self.found = True
                     print(steps)
                 elif out == 0:
                     self.visited.add(newPoint)
                 else:
-                    print("in here")
-                    self.queue.push({'point': newPoint, 'steps': steps})
+                    # print("in here")
+                    self.queue.append({'point': newPoint, 'steps': steps, 'amp': newIntCode})
                 
-                print(self.queue)
+                # print(self.queue)
+            
 
     def get_northern_point(self, point):
         return Point(point.x, point.y + 1)
