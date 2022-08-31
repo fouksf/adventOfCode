@@ -3,37 +3,49 @@ from intcode import Computer
 inp = list(map(int, open("2019/17/input.txt", "r").read().strip().split(",")))
 intcode = Computer(inp)
 
-SCAFFOLDING = "#"
 
-grid = []
-row = []
-for i in range(0,2653):
-    num = intcode.run_int_code([])
+class Scaffolding:
+    SCAFFOLDING = "#"
 
-    if num == 10:
-        grid.append(row)
+    def __init__(self, int_computer, input):
+        grid = []
         row = []
-    else:
-        row.append(chr(num))
+        while True:
+            num = int_computer.run_int_code([])
+            if num == 10:
+                grid.append(row)
+                row = []
+            elif num is None:
+                break
+            else:
+                row.append(chr(num))
+        self.grid = grid
 
-for line in grid:
-    print(''.join(line))
+    def print_grid(self):
+        for line in grid:
+            print(''.join(line))
 
-def isIntersection(i, j, grid):
-    return grid[i][j] == SCAFFOLDING and grid[i - 1][j] == SCAFFOLDING and grid[i + 1][j] == SCAFFOLDING and grid[i][j + 1] == SCAFFOLDING and grid[i][j - 1] == SCAFFOLDING
+    def isIntersection(self, i, j):
+        return (self.grid[i][j] == self.SCAFFOLDING and 
+                self.grid[i - 1][j] == self.SCAFFOLDING and 
+                self.grid[i + 1][j] == self.SCAFFOLDING and 
+                self.grid[i][j + 1] == self.SCAFFOLDING and 
+                self.grid[i][j - 1] == self.SCAFFOLDING)
 
-def calculateAlignmentParameter(i, j, grid):
-    if isIntersection(i, j, grid):
-        return i * j
-    else:
-        return 0
+    def calculateAlignmentParameter(self, i, j):
+        if self.isIntersection(i, j):
+            return i * j
+        else:
+            return 0
 
-sum = 0
-for i in range(1, len(grid) - 2):
-    for j in range(1, len(grid[i]) - 2):
-        param = calculateAlignmentParameter(i, j, grid)
-        print(param, end="")
-        sum += param
-    print("\n")
-print(sum)
+    def calculate_sum_of_alignment_parameters(self):
+        sum = 0
+        for i in range(1, len(self.grid) - 2):
+            for j in range(1, len(self.grid[i]) - 2):
+                param = self.calculateAlignmentParameter(i, j)
+                sum += param
+        return sum
+
+scaffolding = Scaffolding(intcode, inp)
+print(scaffolding.calculate_sum_of_alignment_parameters())
 
