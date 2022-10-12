@@ -22,7 +22,7 @@ class Scaffolding:
                 if(chr(num)) == '^':
                     start_row = len(grid)
                     start_col = len(row)
-        self.grid = grid
+        self.grid = grid[:-1]
 
     def print_grid(self):
         for line in self.grid:
@@ -93,7 +93,7 @@ class Scaffolding:
         
 
     def is_scaffolding(self, x, y):
-        return False if y <= len(self.grid[0]) and x <= len(self.grid) else self.grid[x][y] == self.SCAFFOLDING
+        return False if y >= len(self.grid[0]) or x > len(self.grid) else self.grid[x][y] == self.SCAFFOLDING
 
     def determine_length_forward(self, position, orientation):
         (x, y) = position
@@ -130,11 +130,12 @@ class Scaffolding:
         position = (16, 12)
         orientation = 'N'
 
-        for x in range(0, 10):
+        for x in range(0, 20):
             turn, orientation = self.determine_direction_to_turn(position, orientation)
             directions.append(turn)
             forward = self.determine_length_forward(position, orientation)
             directions.append(forward)
+            # this should be updating
             position = self.move(position, orientation, forward)
 
         print(directions)
