@@ -53,31 +53,31 @@ class Scaffolding:
         # return value can be L or R
     def determine_direction_to_turn(self, position, current_orientation):
         (x, y) = position
-        if x + 1 <= len(self.grid[0]) and self.grid[x + 1][y] == self.SCAFFOLDING and not self.came_from(position, current_orientation, (x + 1, y)):
+        if x + 1 < len(self.grid) - 1 and self.grid[x + 1][y] == self.SCAFFOLDING and not self.came_from(position, current_orientation, (x + 1, y)):
             if current_orientation == 'E':
                 return ('R', 'S')
             elif current_orientation == 'W':
                 return ('L', 'S')
             raise Exception("wtf")
-        if x - 1 <= len(self.grid[0]) and self.grid[x - 1][y] == self.SCAFFOLDING and not self.came_from(position, current_orientation, (x - 1, y)):
+        if x - 1 >= 0 and self.grid[x - 1][y] == self.SCAFFOLDING and not self.came_from(position, current_orientation, (x - 1, y)):
             if current_orientation == 'W':
                 return ('R', 'N')
             elif current_orientation == 'E':
                 return ('L', 'N')
             raise Exception("wtf 2")
-        if y + 1 <= len(self.grid[0]) and self.grid[x][y + 1] == self.SCAFFOLDING and not self.came_from(position, current_orientation, (x, y + 1)):
+        if y + 1 < len(self.grid[0]) and self.grid[x][y + 1] == self.SCAFFOLDING and not self.came_from(position, current_orientation, (x, y + 1)):
             if current_orientation == 'N':
                 return ('R', 'E')
             elif current_orientation == 'S':
                 return ('L', 'E')
             raise Exception("wtf 3")
-        if y - 1 <= len(self.grid[0]) and self.grid[x][y - 1] == self.SCAFFOLDING and not self.came_from(position, current_orientation, (x, y - 1)):
+        if y - 1 >= 0 and self.grid[x][y - 1] == self.SCAFFOLDING and not self.came_from(position, current_orientation, (x, y - 1)):
             if current_orientation == 'N':
                 return ('L', 'W')
             elif current_orientation == 'S':
                 return ('R', 'W')
             raise Exception("wtf 4")
-        raise Exception("wtf 5")
+        return (None, None)
 
     def came_from(self, current_position, orientation, point_to_check):
         (x, y) = current_position
@@ -130,8 +130,10 @@ class Scaffolding:
         position = (16, 12)
         orientation = 'N'
 
-        for x in range(0, 20):
+        for x in range(0, 1000):
             turn, orientation = self.determine_direction_to_turn(position, orientation)
+            if turn == None:
+                break
             directions.append(turn)
             forward = self.determine_length_forward(position, orientation)
             directions.append(forward)
@@ -139,6 +141,7 @@ class Scaffolding:
             position = self.move(position, orientation, forward)
 
         print(directions)
+        print(len(directions))
         # // determine how far we can go
         # // repeat but exclude the direction we came from
         # end when there is no other place to go except back
