@@ -143,13 +143,17 @@ class Scaffolding:
         # // determine how far we can go
         # // repeat but exclude the direction we came from
         # end when there is no other place to go except back
+
+
 def asciify(string):
     return list(map(ord, list(string)))
-pattern = asciify("B,A,B,A,C,C,A,B,A,C\n")
+
+
+pattern = asciify('B,A,B,A,C,C,A,B,A,C\n')
 A = asciify('L,8,L,8,R,4,R,6,R,6\n')
 B = asciify('L,12,L,6,L,8,R,6\n')
 C = asciify('L,12,R,6,L,8\n')
-scaffolding = Scaffolding(intcode, [pattern, A, B, C])
+scaffolding = Scaffolding(intcode, pattern + A + B + C)
 scaffolding.print_grid()
 # print(scaffolding.came_from((0,1), "E", (0,0)))
 # print(scaffolding.came_from((0,0), "W", (0,1)))
