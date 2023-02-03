@@ -19,7 +19,7 @@ class Scaffolding:
                 break
             else:
                 row.append(chr(num))
-                if(chr(num)) == '^':
+                if (chr(num)) == '^':
                     start_row = len(grid)
                     start_col = len(row)
         self.grid = grid[:-1]
@@ -29,10 +29,10 @@ class Scaffolding:
             print(''.join(line))
 
     def isIntersection(self, i, j):
-        return (self.grid[i][j] == self.SCAFFOLDING and 
-                self.grid[i - 1][j] == self.SCAFFOLDING and 
-                self.grid[i + 1][j] == self.SCAFFOLDING and 
-                self.grid[i][j + 1] == self.SCAFFOLDING and 
+        return (self.grid[i][j] == self.SCAFFOLDING and
+                self.grid[i - 1][j] == self.SCAFFOLDING and
+                self.grid[i + 1][j] == self.SCAFFOLDING and
+                self.grid[i][j + 1] == self.SCAFFOLDING and
                 self.grid[i][j - 1] == self.SCAFFOLDING)
 
     def calculateAlignmentParameter(self, i, j):
@@ -90,7 +90,6 @@ class Scaffolding:
             return x - 1 == x1 and y == y1
         if orientation == 'N':
             return x + 1 == x1 and y == y1
-        
 
     def is_scaffolding(self, x, y):
         return False if y >= len(self.grid[0]) or x > len(self.grid) else self.grid[x][y] == self.SCAFFOLDING
@@ -108,22 +107,20 @@ class Scaffolding:
             while dx >= 0 and dx < len(self.grid) and self.is_scaffolding(dx, y):
                 dx += delta
             return (dx - x - delta) * delta
-    
+
     def move(self, position, orientation, distance):
         (x, y) = position
         if orientation == 'N':
             return (x - distance, y)
-        
+
         if orientation == 'S':
             return (x + distance, y)
 
         if orientation == 'E':
             return (x, y + distance)
-        
+
         if orientation == 'W':
             return (x, y - distance)
-
-        
 
     def find_path_commands(self):
         directions = []
@@ -131,11 +128,12 @@ class Scaffolding:
         orientation = 'N'
 
         for x in range(0, 1000):
-            turn, orientation = self.determine_direction_to_turn(position, orientation)
+            turn, orientation = self.determine_direction_to_turn(
+                position, orientation)
             if turn == None:
                 break
             directions.append(turn)
-            forward = self.determine_length_forwardx(position, orientation)
+            forward = self.determine_length_forward(position, orientation)
             directions.append(forward)
             # this should be updating
             position = self.move(position, orientation, forward)

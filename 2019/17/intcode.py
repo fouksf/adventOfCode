@@ -4,6 +4,8 @@ from pickletools import opcodes
 
 # Opcode 3 takes a single integer as input and saves it to the position given by its only parameter. For example, the instruction 3,50 would take an input value and store it at address 50.
 # Opcode 4 outputs the value of its only parameter. For example, the instruction 4,50 would output the value at address 50.
+
+
 class Operation(Enum):
     SUM = 1
     MULTIPLY = 2
@@ -16,10 +18,12 @@ class Operation(Enum):
     RB_OFFSET = 9
     HALT = 99
 
+
 class Mode(Enum):
     POSITION = "0"
     IMMEDIATE = "1"
     RELATIVE = "2"
+
 
 class Computer:
     def __init__(self, instructions):
@@ -105,8 +109,8 @@ class Computer:
     def jumpOp(self, modes, isIfTrue, parameters):
         v_one = self.get_parameter_value(parameters[0], modes[0])
         v_two = self.get_parameter_value(parameters[1], modes[1])
-        if((v_one != 0 and isIfTrue) or
-        (v_one == 0 and not isIfTrue)):
+        if ((v_one != 0 and isIfTrue) or
+           (v_one == 0 and not isIfTrue)):
             self.position = v_two
         else:
             self.position += self.parameter_count[5] + 1
@@ -124,7 +128,7 @@ class Computer:
         v_two = self.get_parameter_value(parameters[1], modes[1])
         v_three = self.get_parameter_index(parameters[2], modes[2])
 
-        if(comparator(v_one, v_two)):
+        if (comparator(v_one, v_two)):
             self.instructions[v_three] = 1
         else:
             self.instructions[v_three] = 0
@@ -138,7 +142,7 @@ class Computer:
         self.halted = True
 
     def find_function(self, opcode):
-        if(opcode in self.functions):
+        if (opcode in self.functions):
             return self.functions[opcode]
 
     def execute_operation(self, opcode, modes, parameters):
@@ -150,11 +154,12 @@ class Computer:
 
         while self.position < len(self.instructions):
             if self.halted:
-              return None  # self.instructions[0]
+                return None  # self.instructions[0]
 
             modes = str(self.instructions[self.position])[:-2][::-1]
             opcode = int(str(self.instructions[self.position])[-2:])
-            parameters = self.instructions[self.position + 1: self.position + self.parameter_count[opcode] + 1]
+            parameters = self.instructions[self.position +
+                                           1: self.position + self.parameter_count[opcode] + 1]
 
             while len(modes) < self.parameter_count[opcode]:
                 modes += "0"
