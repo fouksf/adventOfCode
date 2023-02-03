@@ -144,6 +144,8 @@ class Scaffolding:
         # // repeat but exclude the direction we came from
         # end when there is no other place to go except back
 
+        # for next time: the map now has added stuff at the end which needs to be trimmed off
+
 
 def asciify(string):
     return list(map(ord, list(string)))
