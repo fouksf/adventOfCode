@@ -1,24 +1,48 @@
 const fs = require('fs')
 const input = fs.readFileSync('./input.txt').toString().split('')
 
-let x = 0
-let y = 0
+let sx = 0
+let sy = 0
 
-const visited = new Set([`${x}, ${y}`])
+let rx = 0
+let ry = 0
+
+let isSanta = true
+
+const visited = new Set([`0, 0`])
 for (const instruction of input) {
     if (instruction === '^') {
-        y += 1
+        if (isSanta) {
+            sy+=1
+        } else {
+            ry+=1
+        }
     } else if (instruction === 'v') {
-        y -= 1
+        if (isSanta) {
+            sy-=1
+        } else {
+            ry-=1
+        }
     } else if (instruction === '>') {
-        x += 1
+        if (isSanta) {
+            sx+=1
+        } else {
+            rx+=1
+        }
     } else if (instruction === '<') {
-        x -= 1
+        if (isSanta) {
+            sx-=1
+        } else {
+            rx-=1
+        }
     } else {
         throw('bad things')
     }
 
-    visited.add(`${x}, ${y}`)
+    isSanta = !isSanta
+
+    visited.add(`${sx}, ${sy}`)
+    visited.add(`${rx}, ${ry}`)
 }
 
 console.log(visited.size)
