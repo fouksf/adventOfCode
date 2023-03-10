@@ -20,3 +20,15 @@ for (const line of lines) {
 }
 
 console.log(sqFt)
+
+function lowestPerimeter(w, h, l) {
+    const longest = Math.max(w, h, l)
+    return 2 * (w + h + l - longest)
+}
+
+let length = 0
+for (const line of lines) {
+    const [l, w, h] = line.split('x').map(dim => Number(dim))
+    length += lowestPerimeter(l, w, h) + l * w * h
+}
+console.log(length)
