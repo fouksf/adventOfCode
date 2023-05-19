@@ -19,7 +19,7 @@ function parseLine(line) {
 }
 
 const actions = strings.map(parseLine)
-const onLights = new Set()
+const lights = {}
 
 for (let i = 0; i < actions.length; i++) {
     const { verb, start, end } = actions[i]
@@ -28,23 +28,28 @@ for (let i = 0; i < actions.length; i++) {
 
     for (let x = x1; x <= x2; x++ ) {
         for (let y = y1; y <= y2; y++) {
+            if (lights[`${x},${y}`] === undefined) {
+                lights[`${x},${y}`] = 0
+            }
             if (verb === 'on') {
-                onLights.add(`${x},${y}`)
+                lights[`${x},${y}`] += 1
             } else if (verb === 'off') {
-                onLights.delete(`${x},${y}`)
-            } else if (verb === 'toggle') {
-                if (onLights.has(`${x},${y}`)) {
-                    onLights.delete(`${x},${y}`)
-                } else {
-                    onLights.add(`${x},${y}`)
+                lights[`${x},${y}`] -= 1
+                if (lights[`${x},${y}`] < 0) {
+                    lights[`${x},${y}`] = 0
                 }
+            } else if (verb === 'toggle') {
+                lights[`${x},${y}`] += 2
             } else {
                 throw new Error(`This should not happen, verb was "${verb}"`)
             }
         }
     }
-
-
 }
 
-console.log(onLights.size)
+let count = 0
+for (const point in lights) {
+    count += lights[point]
+}
+
+console.log(count)
